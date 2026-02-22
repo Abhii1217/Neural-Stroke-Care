@@ -1,0 +1,81 @@
+
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="hero hero--wide mb-5" data-animate>
+        <span class="hero__chip">
+            AI-assisted predictions
+        </span>
+        <h1 class="hero__title">Early stroke insights for patients and clinicians</h1>
+        <p class="hero__subtitle">
+            Modern screening tools, personalized dashboards, and rich analytics built to keep you one step ahead of serious events.
+        </p>
+        <div class="hero__actions">
+            <a href="{{ url_for('signup', user_type='patient') }}" class="btn-gradient">
+                Patient onboarding
+            </a>
+            <a href="{{ url_for('signup', user_type='doctor') }}" class="btn-ghost">
+                Doctor workspace
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid--2 mb-5">
+        <div class="card-cta card-cta--patient text-center" data-animate>
+            <div class="card-cta__icon">
+            </div>
+            <h3 class="mb-3">For Patients</h3>
+            <p class="text-muted mb-4">
+                Track risk factors, revisit historic assessments, and download share-ready reports.
+            </p>
+            <div class="d-grid gap-3">
+                <a href="{{ url_for('login', user_type='patient') }}" class="btn-gradient">
+                    Patient login
+                </a>
+                <a href="{{ url_for('signup', user_type='patient') }}" class="btn-ghost">
+                    Create account
+                </a>
+            </div>
+        </div>
+
+        <div class="card-cta card-cta--doctor text-center" data-animate>
+            <div class="card-cta__icon text-success">
+            </div>
+            <h3 class="mb-3">For Doctors</h3>
+            <p class="text-muted mb-4">
+                Review panels, filter cohorts, and update care notes with collaborative tools.
+            </p>
+            <div class="d-grid gap-3">
+                <a href="{{ url_for('login', user_type='doctor') }}" class="btn btn-soft">
+                    Doctor login
+                </a>
+                <a href="{{ url_for('signup', user_type='doctor') }}" class="btn-ghost">
+                    Join the network
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="surface-card surface-card--glass" data-animate>
+        <div class="grid grid--3">
+            <div class="feature-card">
+                <h5>Realtime analysis</h5>
+                <p class="text-muted mb-0">AI evaluates every submission in milliseconds with calibrated risk scoring.</p>
+            </div>
+            <div class="feature-card">
+                <h5>Progress tracking</h5>
+                <p class="text-muted mb-0">Visualize BMI, glucose, and lifestyle shifts over the last five assessments.</p>
+            </div>
+            <div class="feature-card">
+                <h5>Privacy-first</h5>
+                <p class="text-muted mb-0">End-to-end encryption and role-based access for every health record.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+```
+

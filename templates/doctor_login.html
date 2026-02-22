@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Login{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-card" data-animate>
+        <div class="auth-card__header">
+            <div class="auth-card__icon">
+                <i class="fas fa-user-md"></i>
+            </div>
+            <h2 class="mb-2">Doctor login</h2>
+            <p class="text-muted mb-0">Manage patients, assessments, and clinical reports.</p>
+        </div>
+
+        <form method="POST" class="form-stack">
+            <div class="form-group">
+                <label class="input-label" for="email">Email address</label>
+                <div class="input-shell">
+                    <span class="form-icon"><i class="fas fa-envelope"></i></span>
+                    <input type="email" class="form-control" id="email" name="email" required placeholder="dr@example.com">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="input-label" for="password">Password</label>
+                <div class="input-shell">
+                    <span class="form-icon"><i class="fas fa-lock"></i></span>
+                    <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-gradient">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </button>
+
+            <div class="text-center text-muted mt-3">
+                Need access?
+                <a href="{{ url_for('signup', user_type='doctor') }}" class="fw-semibold">Create a doctor account</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

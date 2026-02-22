@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Stroke Prediction{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="surface-card surface-card--glass" data-animate>
+        <div class="text-center mb-4">
+            <h1 class="hero__title">
+                <i class="fas fa-brain me-3 text-primary"></i>
+                Stroke Risk Assessment
+            </h1>
+            <div class="description text-start mx-auto">
+                {{ description if description else 
+                "Stroke is the second leading cause of death globally. This tool uses machine learning to assess your stroke risk based on various health factors. Please provide your information below for an accurate assessment." }}
+            </div>
+        </div>
+
+        <form method="POST" class="form-stack">
+            <div class="input-grid">
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-user-clock"></i>
+                        Age
+                        <span class="info-tooltip" data-bs-toggle="tooltip" title="Enter your age in years">ⓘ</span>
+                    </label>
+                    <input type="number" class="form-control" name="age" required min="0" max="120">
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-venus-mars"></i>
+                        Gender
+                    </label>
+                    <select class="form-control" name="gender" required>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-globe"></i>
+                        Average Glucose Level
+                        <span class="info-tooltip" data-bs-toggle="tooltip" title="Enter your average glucose level in mg/dL">ⓘ</span>
+                    </label>
+                    <input type="number" step="0.01" class="form-control" name="avg_glucose_level" required min="40.0" max="300.0">
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-heart"></i>
+                        Hypertension
+                    </label>
+                    <select class="form-control" name="hypertension" required>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-heartbeat"></i>
+                        Heart Disease
+                    </label>
+                    <select class="form-control" name="heart_disease" required>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-ring"></i>
+                        Ever Married
+                    </label>
+                    <select class="form-control" name="ever_married" required>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-home"></i>
+                        Residence Type
+                    </label>
+                    <select class="form-control" name="residence_type" required>
+                        <option value="Urban">Urban</option>
+                        <option value="Rural">Rural</option>
+                    </select>
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-smoking"></i>
+                        Smoking Status
+                    </label>
+                    <select class="form-control" name="smoking_status" required>
+                        <option value="Never Smoked">Never Smoked</option>
+                        <option value="Formerly Smoked">Formerly Smoked</option>
+                        <option value="Smokes">Smokes</option>
+                        <option value="Unknown">Unknown</option>
+                    </select>
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-briefcase"></i>
+                        Work Type
+                    </label>
+                    <select class="form-control" name="work_type" required>
+                        <option value="Private">Private</option>
+                        <option value="Self-employed">Self-employed</option>
+                        <option value="Government job">Government job</option>
+                        <option value="Children">Children</option>
+                        <option value="Never Worked">Never Worked</option>
+                    </select>
+                </div>
+
+                <div class="input-tile">
+                    <label class="input-label">
+                        <i class="fas fa-weight"></i>
+                        BMI
+                        <span class="info-tooltip" data-bs-toggle="tooltip" title="Enter your BMI">ⓘ</span>
+                    </label>
+                    <input type="number" class="form-control" name="bmi" required min="10" max="100">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-gradient btn-full">
+                <i class="fas fa-heartbeat"></i>
+                Analyze stroke risk
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

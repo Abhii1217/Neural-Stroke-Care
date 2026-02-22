@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="welcome-card mb-5" data-animate>
+        <h1 class="mb-2">Welcome back, {{ user.name }}!</h1>
+        <p class="opacity-75">Stay on top of your stroke risk with AI-powered insights.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Health Status Card -->
+        <div class="surface-card surface-card--glass p-4" data-animate>
+            <h5 class="mb-4">Current Stroke Risk Status</h5>
+
+            {% if latest_test %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="text-muted small">Last assessed:</span><br>
+                        <strong>{{ latest_test.test_date.strftime('%B %d, %Y at %I:%M %p') }}</strong>
+                    </div>
+                    <span class="result-badge fs-4 px-4 py-2 {% if latest_test.result == 'Likely' %}likely{% else %}not-likely{% endif %}">
+                        {{ latest_test.result }}
+                    </span>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold text-primary">{{ "%.1f"|format(latest_test.bmi) }}</div>
+                            <div class="text-muted small">BMI</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold text-danger">{{ "%.0f"|format(latest_test.avg_glucose_level) }}</div>
+                            <div class="text-muted small">Glucose</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold">{{ "Yes" if latest_test.hypertension else "No" }}</div>
+                            <div class="text-muted small">Hypertension</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold">{{ "Yes" if latest_test.heart_disease else "No" }}</div>
+                            <div class="text-muted small">Heart Disease</div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-heartbeat fa-4x mb-4 opacity-50"></i>
+                    <h5>No assessment completed yet</h5>
+                    <p>Take your first test to see your personalized risk score.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="surface-card p-4" data-animate>
+            <h5 class="mb-4">Quick Actions</h5>
+            <div class="d-grid gap-3">
+                <a href="{{ url_for('index') }}" class="btn-gradient btn-lg">
+                    Take New Assessment
+                </a>
+                {% if latest_test %}
+                    <a href="{{ url_for('test_history') }}" class="btn-ghost">
+                        View History
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if not latest_test %}
+            <div class="alert alert-info mt-4">
+                The assessment takes less than 2 minutes and gives you an accurate, medical-grade risk score.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="welcome-card" data-animate>
+        <h1 class="mb-2">Welcome, Dr. {{ user.name }}!</h1>
+        <p class="mb-4 opacity-75">Monitor your patients and stay ahead of high-risk cases.</p>
+    </div>
+
+    <div class="surface-card mb-4" data-animate>
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-4">
+            <div>
+                <h4 class="mb-2">Quick Actions</h4>
+                <p class="text-muted mb-0">Perform a new stroke risk assessment for any patient.</p>
+            </div>
+            <div class="hero__actions">
+                <a href="{{ url_for('index') }}" class="btn-gradient">
+                    Start New Assessment
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card" data-animate>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="mb-1">Patient List</h4>
+                <p class="text-muted mb-0">Search and review all registered patients.</p>
+            </div>
+        </div>
+
+        <div class="search-bar mb-3">
+            <input type="text" id="patientSearch" placeholder="Search by name or email..." class="form-control">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Email</th>
+                        <th>Last Assessment</th>
+                        <th>Risk Status</th>
+                    </tr>
+                </thead>
+                <tbody id="patientTableBody">
+                    {% if patients and patients|length > 0 %}
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.name|default("Unknown") }}</td>
+                            <td>{{ patient.email|default("—") }}</td>
+                            <td>
+                                {% if patient.last_test %}
+                                    {{ patient.last_test }}
+                                {% else %}
+                                    <span class="text-muted">No assessment yet</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if patient.risk == 'Likely' %}
+                                    <span class="status-badge status-high">High Risk</span>
+                                {% elif patient.risk == 'Not Likely' %}
+                                    <span class="status-badge status-low">Low Risk</span>
+                                {% else %}
+                                    <span class="status-badge">No Result</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="fas fa-users fa-2x mb-3 opacity-50"></i><br>
+                                No patients registered yet.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script>
+// Safe search functionality — will never crash
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById('patientSearch');
+    const tableBody = document.getElementById('patientTableBody');
+
+    if (!searchInput || !tableBody) return;
+
+    searchInput.addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase().trim();
+        const rows = tableBody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(term) ? '' : 'none';
+        });
+    });
+});
+</script>
+{% endblock %}

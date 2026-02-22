@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Test History{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="surface-card" data-animate>
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-4 mb-5">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-history me-2 text-primary"></i>
+                    Test History
+                </h2>
+                <p class="text-muted mb-0">Review how your stroke risk and key metrics have changed over time.</p>
+            </div>
+            <a href="{{ url_for('index') }}" class="btn-gradient">
+                <i class="fas fa-plus-circle me-2"></i>
+                New Assessment
+            </a>
+        </div>
+
+        <!-- HISTORY TABLE -->
+        {% if tests %}
+            <div class="table-responsive">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Risk Result</th>
+                            <th>BMI</th>
+                            <th>Glucose Level</th>
+                            <th>Hypertension</th>
+                            <th>Heart Disease</th>
+                            <th>Smoking Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test in tests %}
+                        <tr>
+                            <td>
+                                <strong>{{ test.test_date.strftime('%b %d, %Y') }}</strong><br>
+                                <small class="text-muted">{{ test.test_date.strftime('%I:%M %p') }}</small>
+                            </td>
+                            <td>
+                                <span class="result-badge fs-6 px-3 py-2 {% if test.result == 'Likely' %}likely{% else %}not-likely{% endif %}">
+                                    {{ test.result }}
+                                </span>
+                            </td>
+                            <td class="fw-semibold">{{ "%.1f"|format(test.bmi) }}</td>
+                            <td class="fw-semibold {% if test.avg_glucose_level > 200 %}text-danger{% endif %}">
+                                {{ "%.0f"|format(test.avg_glucose_level) }}
+                            </td>
+                            <td>
+                                <span class="badge {% if test.hypertension %}bg-danger{% else %}bg-success{% endif %}">
+                                    {{ "Yes" if test.hypertension else "No" }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if test.heart_disease %}bg-danger{% else %}bg-success{% endif %}">
+                                    {{ "Yes" if test.heart_disease else "No" }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if test.smoking_status %}
+                                    <span class="text-capitalize">{{ test.smoking_status.replace('_', ' ') }}</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <!-- EMPTY STATE -->
+            <div class="text-center py-6">
+                <i class="fas fa-clipboard-list fa-4x text-muted mb-4 opacity-50"></i>
+                <h4 class="text-muted mb-3">No assessments yet</h4>
+                <p class="text-muted mb-4">Your test history will appear here once you complete your first stroke risk assessment.</p>
+                <a href="{{ url_for('index') }}" class="btn-gradient btn-lg">
+                    Take Your First Test
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- BACK BUTTON -->
+        <div class="mt-4">
+            <a href="{{ url_for('dashboard') }}" class="btn-ghost">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
