@@ -268,6 +268,9 @@ def hospitals():
 
     results.sort(key=lambda x: x["distance"])
     return jsonify(results[:10])
+# CREATE TABLES AFTER MODELS
+with app.app_context():
+    db.create_all()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
