@@ -4,14 +4,21 @@
 
 Neural Stroke Care is a full-stack machine learning web application designed to predict stroke risk using demographic and medical attributes.
 
-The system integrates:
+It provides:
+- Doctor & patient authentication
+- Dashboard for predictions and history
+- Model training & evaluation utilities
+- Database integration
+- Clean UI with HTML / CSS templates
 
-- A trained Logistic Regression model
-- SMOTE for class imbalance correction
-- Flask backend
-- Authentication system for doctors and patients
-- SQLite database
-- Render deployment configuration
+## 📌 Features
+
+✅ Stroke prediction using a trained ML model  
+✅ User authentication (Doctor / Patient)  
+✅ SQLite database for storing user info & test history  
+✅ Model training & evaluation scripts  
+✅ Visualizations: ROC, confusion matrix, PR curves  
+✅ Clean web UI with Flask templates
 
 🔗 **Live Application:**  
 👉 https://neural-stroke-care.onrender.com
@@ -137,7 +144,7 @@ Deployment:
 
 ### 1️⃣ Clone Repository
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/Neural_Stroke_Care.git
+git clone https://github.com/Abhii1217/Neural-Stroke-Care.git
 cd Neural_Stroke_Care
 ```
 
