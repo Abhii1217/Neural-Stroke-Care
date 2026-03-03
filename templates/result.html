@@ -125,6 +125,27 @@
         </div>
         {% endif %}
 
+        {% if result == 'Likely' and doctors %}
+<div class="mt-5 text-start">
+    <h4 class="mb-3">Available Doctors</h4>
+
+    {% for doctor in doctors %}
+    <div class="hospital-card">
+        <h5>{{ doctor.name }}</h5>
+        <div class="text-muted">
+            {{ doctor.specialization or "General Practitioner" }}
+        </div>
+        <div class="hospital-distance">
+            Available: {{ doctor.available_from or "N/A" }} - {{ doctor.available_to or "N/A" }}
+        </div>
+        <div class="mt-2 small text-muted">
+            Contact: {{ doctor.email }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
         <!-- Action Buttons -->
         <div class="d-flex justify-content-center gap-3 mt-5 flex-wrap">
             <a href="{{ url_for('index') }}" class="btn-gradient">New Assessment</a>
@@ -135,53 +156,66 @@
 </section>
 
 <script>
+// @ts-nocheck
+
 // GAUGE NEEDLE ANIMATION
-const prob = {{ probability }};
-const deg = -90 + (prob * 1.8);  // 0% = -90°, 100% = +90°
+const prob = Number("{{ probability }}");
+const deg = -90 + (prob * 1.8);
 document.getElementById("needle").style.transform = `rotate(${deg}deg)`;
 
-// HOSPITAL FETCHER (only if high risk)
-{% if result == 'Likely' %}
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
+// Determine if high risk (no Jinja inside JS blocks)
+const isHighRisk = "{{ result }}" === "Likely";
 
-        fetch(`/hospitals?lat=${lat}&lon=${lon}`)
-            .then(r => r.json())
-            .then(hospitals => {
-                const container = document.getElementById("hospital-list");
-                container.innerHTML = "";
+if (isHighRisk && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
 
-                if (hospitals.length === 0) {
-                    container.innerHTML = "<p>No hospitals found nearby.</p>";
-                    return;
-                }
+            fetch(`/hospitals?lat=${lat}&lon=${lon}`)
+                .then(r => r.json())
+                .then(hospitals => {
+                    const container = document.getElementById("hospital-list");
+                    if (!container) return;
 
-                hospitals.forEach(h => {
-                    const card = document.createElement("div");
-                    card.className = "hospital-card";
-                    card.innerHTML = `
-                        <h5>${h.name}</h5>
-                        <div class="text-muted">${h.address}</div>
-                        <div class="hospital-distance">${h.distance.toFixed(1)} km away</div>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + " " + h.address)}" target="_blank">
-                            <button class="map-btn">Open in Maps</button>
-                        </a>
-                    `;
-                    container.appendChild(card);
+                    container.innerHTML = "";
+
+                    if (!hospitals.length) {
+                        container.innerHTML = "<p>No hospitals found nearby.</p>";
+                        return;
+                    }
+
+                    hospitals.forEach(h => {
+                        const card = document.createElement("div");
+                        card.className = "hospital-card";
+                        card.innerHTML = `
+                            <h5>${h.name}</h5>
+                            <div class="text-muted">${h.address}</div>
+                            <div class="hospital-distance">
+                                ${h.distance.toFixed(1)} km away
+                            </div>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + " " + h.address)}" target="_blank">
+                                <button class="map-btn">Open in Maps</button>
+                            </a>
+                        `;
+                        container.appendChild(card);
+                    });
+                })
+                .catch(function() {
+                    const container = document.getElementById("hospital-list");
+                    if (container) {
+                        container.innerHTML = "<p>Could not load hospitals.</p>";
+                    }
                 });
-            })
-            .catch(() => {
-                document.getElementById("hospital-list").innerHTML = "<p>Could not load hospitals.</p>";
-            });
-    }, () => {
-        document.getElementById("hospital-list").innerHTML = "<p>Location access denied.</p>";
-    });
-} else {
-    document.getElementById("hospital-list").innerHTML = "<p>Geolocation not supported.</p>";
+        },
+        function() {
+            const container = document.getElementById("hospital-list");
+            if (container) {
+                container.innerHTML = "<p>Location access denied.</p>";
+            }
+        }
+    );
 }
-{% endif %}
 </script>
 
 {% endblock %}

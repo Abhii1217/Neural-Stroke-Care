@@ -6,13 +6,7 @@ import joblib
 from datetime import datetime
 import requests
 from math import radians, sin, cos, sqrt, atan2
-import os
-import pytz
 
-IST = pytz.timezone('Asia/Kolkata')
-
-def now_ist():
-    return datetime.now(IST)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'change-this-secret-key-123'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -39,14 +33,19 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     user_type = db.Column(db.String(20), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    specialization = db.Column(db.String(100))
+    is_available = db.Column(db.Boolean, default=True)
+    available_from = db.Column(db.String(10))
+    available_to = db.Column(db.String(10))
     tests = db.relationship('TestResult', backref='user', lazy=True)
+
 
 class TestResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     result = db.Column(db.String(20), nullable=False)
     risk_probability = db.Column(db.Float)
-    test_date = db.Column(db.DateTime, default=now_ist)
+    test_date = db.Column(db.DateTime, default=datetime.utcnow)
     gender = db.Column(db.String(10))
     age = db.Column(db.Integer)
     hypertension = db.Column(db.Integer)
@@ -104,17 +103,28 @@ def index():
             db.session.add(new_test)
             db.session.commit()
 
-            return render_template("result.html",
-                                   result=result,
-                                   probability=risk,
-                                   input_data=save_data,
-                                   date=now_ist().strftime("%B %d, %Y"))
+            doctors = []
+
+            if result == "Likely":
+                doctors = User.query.filter_by(
+                    user_type='doctor',
+                    is_available=True
+                ).all()
+
+            return render_template(
+                "result.html",
+                result=result,
+                probability=risk,
+                input_data=save_data,
+                date=datetime.utcnow().strftime("%B %d, %Y"),
+                doctors=doctors)
 
         except Exception as e:
             error = "Please fill all fields correctly."
             print("Error:", e)
+            return render_template("index.html", error=error)
 
-    return render_template("index.html", error=error)
+    return render_template("index.html")    
 
 @app.route("/signup/<user_type>", methods=["GET", "POST"])
 def signup(user_type):
@@ -268,10 +278,8 @@ def hospitals():
 
     results.sort(key=lambda x: x["distance"])
     return jsonify(results[:10])
-# CREATE TABLES AFTER MODELS
-with app.app_context():
-    db.create_all()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
