@@ -279,7 +279,7 @@ def hospitals():
     results.sort(key=lambda x: x["distance"])
     return jsonify(results[:10])
 
-if __name__ == "__main__":
-    with app.app_context():
+with app.app_context():
         db.create_all()
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=False)
