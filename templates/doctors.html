@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Doctors{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="surface-card mb-4" data-animate>
+        <h3 class="mb-3">Doctor Directory</h3>
+        <form method="GET" action="{{ url_for('doctors') }}" class="row g-3">
+            <div class="col-md-4">
+                <label class="input-label">Availability</label>
+                <select name="availability" class="form-control">
+                    <option value="all" {% if selected_availability == 'all' %}selected{% endif %}>All</option>
+                    <option value="online" {% if selected_availability == 'online' %}selected{% endif %}>Online</option>
+                    <option value="offline" {% if selected_availability == 'offline' %}selected{% endif %}>Offline</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="input-label">Specialization</label>
+                <input list="specialization-options" type="text" name="specialization" class="form-control" value="{{ selected_specialization }}" placeholder="Neurology">
+                <datalist id="specialization-options">
+                    {% for spec in specializations %}
+                        <option value="{{ spec }}"></option>
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-md-2 d-grid">
+                <label class="input-label text-white">Apply</label>
+                <button class="btn-gradient" type="submit">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-3">
+        {% for doctor in doctors %}
+            <div class="col-md-6 col-lg-4">
+                <div class="surface-card h-100" data-animate>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="mb-1">{{ doctor.name }}</h5>
+                        <span class="availability-pill {{ 'online' if doctor.is_available else 'offline' }}">
+                            {{ "Online" if doctor.is_available else "Offline" }}
+                        </span>
+                    </div>
+                    <p class="text-muted mb-1">{{ doctor.email }}</p>
+                    <p class="mb-1"><strong>Specialization:</strong> {{ doctor.specialization or "General Physician" }}</p>
+                    <p class="mb-0">
+                        <strong>Timings:</strong>
+                        {% if doctor.available_from and doctor.available_to %}
+                            {{ doctor.available_from.strftime('%I:%M %p') }} - {{ doctor.available_to.strftime('%I:%M %p') }}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="surface-card text-center text-muted">
+                    No doctors found for selected filters.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

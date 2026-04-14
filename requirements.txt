@@ -1,0 +1,14 @@
+flask
+flask_sqlalchemy
+flask-login
+flask-cors
+psycopg2-binary
+werkzeug
+requests
+numpy
+pandas
+scikit-learn
+imbalanced-learn
+joblib
+gunicorn
+pytz

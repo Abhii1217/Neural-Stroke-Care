@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Stroke Prediction Result{% endblock %}
+
+{% block content %}
+
+<style>
+/* ---- Hospital Card ---- */
+.hospital-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px 20px;
+    border: 1px solid #e6e6e6;
+    margin-bottom: 14px;
+    transition: 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.hospital-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.hospital-distance {
+    background: #007bff;
+    padding: 4px 10px;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 12px;
+    display: inline-block;
+    margin-top: 6px;
+}
+.map-btn {
+    background: #f8f9fa;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* --- SVG Gauge --- */
+.gauge-wrapper {
+    width: 260px;
+    margin: 0 auto;
+    text-align: center;
+}
+#gaugeSvg {
+    width: 100%;
+}
+#needle {
+    transform-origin: 150px 150px;
+    transition: transform 1.5s ease;
+}
+</style>
+
+<section class="page-section">
+    <div class="surface-card surface-card--glass result-card text-center">
+
+        <h1 class="mb-3">Stroke Prediction Result</h1>
+        <p class="text-muted">Generated {{ date }}</p>
+
+        <!-- Prediction Badge -->
+        <div class="result-state {% if result == 'Likely' %}result-state--high{% else %}result-state--low{% endif %} mt-4">
+            <h2>Prediction: {{ result }}</h2>
+        </div>
+
+        <!-- SVG SEMICIRCLE GAUGE -->
+        <div class="gauge-wrapper mt-4">
+            <svg id="gaugeSvg" viewBox="0 0 300 180">
+                <!-- Low (green) -->
+                <path d="M20 150 A130 130 0 0 1 110 40" stroke="#4CAF50" stroke-width="22" fill="none"/>
+                <!-- Moderate (yellow) -->
+                <path d="M110 40 A130 130 0 0 1 190 40" stroke="#FFC107" stroke-width="22" fill="none"/>
+                <!-- High (orange) -->
+                <path d="M190 40 A130 130 0 0 1 260 90" stroke="#FF9800" stroke-width="22" fill="none"/>
+                <!-- Critical (red) -->
+                <path d="M260 90 A130 130 0 0 1 280 150" stroke="#F44336" stroke-width="22" fill="none"/>
+                <!-- Needle -->
+                <line id="needle" x1="150" y1="150" x2="150" y2="30"
+                      stroke="#111" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+        </div>
+
+        <h3 class="fw-bold mt-3">{{ "%.1f"|format(probability) }}%</h3>
+
+        {% if result == 'Likely' %}
+        <div class="alert alert-danger border-0 rounded-3 mt-4">
+            If you're experiencing stroke symptoms, call emergency services immediately!
+        </div>
+        {% endif %}
+
+        <!-- Doctor Tips -->
+        <div class="alert alert-info text-start mt-4" style="border-radius: 14px;">
+            <h5 class="fw-bold">Doctor Recommendations</h5>
+            <ul class="mb-0">
+                <li>Get blood pressure checked regularly.</li>
+                <li>Monitor glucose levels if diabetic.</li>
+                <li>Avoid smoking completely.</li>
+                <li>Maintain a healthy BMI.</li>
+                <li>Consult a neurologist if symptoms persist.</li>
+            </ul>
+        </div>
+
+        <!-- Risk Interpretation -->
+        <div class="mt-4 p-4" style="background:#fafafa; border-radius: 12px; border:1px solid #eee;">
+            <h5 class="fw-bold">Risk Interpretation</h5>
+            {% if probability < 20 %}
+                <p>Low risk. Continue a healthy lifestyle.</p>
+            {% elif probability < 40 %}
+                <p>Mildly elevated risk. Lifestyle changes recommended.</p>
+            {% elif probability < 70 %}
+                <p>High risk. Medical checkup advised.</p>
+            {% else %}
+                <p>Critical stroke risk. Seek immediate medical evaluation.</p>
+            {% endif %}
+        </div>
+
+        <!-- Nearby Hospitals (only for high risk) -->
+        {% if result == 'Likely' %}
+        <div class="mt-5 text-start">
+            <h4 class="mb-3">Nearby Neuro/Emergency Hospitals</h4>
+            <div id="hospital-list" class="text-muted">Fetching nearby hospitals...</div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-center gap-3 mt-5 flex-wrap">
+            <a href="{{ url_for('index') }}" class="btn-gradient">New Assessment</a>
+            <a href="{{ url_for('dashboard') }}" class="btn-ghost">Dashboard</a>
+        </div>
+
+    </div>
+</section>
+
+<script>
+// GAUGE NEEDLE ANIMATION
+const prob = {{ probability }};
+const deg = -90 + (prob * 1.8);  // 0% = -90°, 100% = +90°
+document.getElementById("needle").style.transform = `rotate(${deg}deg)`;
+
+// HOSPITAL FETCHER (only if high risk)
+{% if result == 'Likely' %}
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        fetch(`/hospitals?lat=${lat}&lon=${lon}`)
+            .then(r => r.json())
+            .then(hospitals => {
+                const container = document.getElementById("hospital-list");
+                container.innerHTML = "";
+
+                if (hospitals.length === 0) {
+                    container.innerHTML = "<p>No hospitals found nearby.</p>";
+                    return;
+                }
+
+                hospitals.forEach(h => {
+                    const card = document.createElement("div");
+                    card.className = "hospital-card";
+                    card.innerHTML = `
+                        <h5>${h.name}</h5>
+                        <div class="text-muted">${h.address}</div>
+                        <div class="hospital-distance">${h.distance.toFixed(1)} km away</div>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + " " + h.address)}" target="_blank">
+                            <button class="map-btn">Open in Maps</button>
+                        </a>
+                    `;
+                    container.appendChild(card);
+                });
+            })
+            .catch(() => {
+                document.getElementById("hospital-list").innerHTML = "<p>Could not load hospitals.</p>";
+            });
+    }, () => {
+        document.getElementById("hospital-list").innerHTML = "<p>Location access denied.</p>";
+    });
+} else {
+    document.getElementById("hospital-list").innerHTML = "<p>Geolocation not supported.</p>";
+}
+{% endif %}
+</script>
+
+{% endblock %}
