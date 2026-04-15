@@ -1,7 +1,6 @@
 <div align="center">
 
-<!-- Animated Heading -->
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=35&duration=3000&pause=1000&color=E63946&center=true&vCenter=true&width=750&lines=🧠+Neural+Stroke+Care;AI-Powered+Stroke+Risk+Prediction;Early+Detection+%7C+Smart+Monitoring;Connecting+Patients+%26+Doctors" alt="Animated Heading" />
+# Neural Stroke Care
 
 <br/>
 
