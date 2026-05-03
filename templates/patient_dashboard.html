@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="welcome-card mb-4" data-animate>
+        <h1 class="mb-2">Welcome back, {{ user.name }}!</h1>
+        <p class="opacity-75 mb-0">Track your risk and connect with available doctors.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="surface-card surface-card--glass p-4" data-animate>
+            <h5 class="mb-4">Current Stroke Risk Status</h5>
+
+            {% if latest_test %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="text-muted small">Last assessed:</span><br>
+                        <strong>{{ latest_test.created_at.strftime('%B %d, %Y at %I:%M %p') }}</strong>
+                    </div>
+                    <span class="result-badge fs-4 px-4 py-2 {% if latest_test.prediction_result == 'Likely' %}likely{% else %}not-likely{% endif %}">
+                        {{ latest_test.prediction_result }}
+                    </span>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold text-primary">{{ "%.1f"|format(latest_test.bmi) }}</div>
+                            <div class="text-muted small">BMI</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold text-danger">{{ "%.0f"|format(latest_test.avg_glucose_level) }}</div>
+                            <div class="text-muted small">Glucose</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold">{{ "Yes" if latest_test.hypertension else "No" }}</div>
+                            <div class="text-muted small">Hypertension</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="fs-3 fw-bold">{{ "Yes" if latest_test.heart_disease else "No" }}</div>
+                            <div class="text-muted small">Heart Disease</div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-heartbeat fa-4x mb-4 opacity-50"></i>
+                    <h5>No assessment completed yet</h5>
+                    <p>Take your first test to see your personalized risk score.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="surface-card p-4" data-animate>
+            <h5 class="mb-4">Quick Actions</h5>
+            <div class="d-grid gap-3">
+                <a href="{{ url_for('index') }}" class="btn-gradient btn-lg">
+                    Take New Assessment
+                </a>
+                <a href="{{ url_for('doctors') }}" class="btn-ghost">
+                    Browse All Doctors
+                </a>
+                {% if latest_test %}
+                    <a href="{{ url_for('test_history') }}" class="btn-ghost">
+                        View History
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if not latest_test %}
+            <div class="alert alert-info mt-4">
+                The assessment takes less than 2 minutes and gives you an accurate, medical-grade risk score.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="surface-card mt-4" data-animate>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Doctors (All)</h5>
+            <a href="{{ url_for('doctors') }}" class="btn-ghost py-2">Advanced Filters</a>
+        </div>
+        <div class="row g-3">
+            {% for doctor in doctors %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="border rounded-4 p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="mb-1">{{ doctor.name }}</h6>
+                            <span class="availability-pill {{ 'online' if doctor.is_available else 'offline' }}">
+                                {{ "Online" if doctor.is_available else "Offline" }}
+                            </span>
+                        </div>
+                        <p class="text-muted mb-1">{{ doctor.specialization or "General Physician" }}</p>
+                        <p class="small mb-0">
+                            {% if doctor.available_from and doctor.available_to %}
+                                {{ doctor.available_from.strftime('%I:%M %p') }} - {{ doctor.available_to.strftime('%I:%M %p') }}
+                            {% else %}
+                                Timings not set
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <p class="text-muted mb-0">No doctors available in the system yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
