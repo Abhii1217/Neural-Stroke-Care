@@ -13,7 +13,7 @@ from models import PatientRecord, User, db
 import os
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "change-this-secret-key-123"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-secret-key-123")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", "sqlite:///users.db"
 )
